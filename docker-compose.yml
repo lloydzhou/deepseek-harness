@@ -8,6 +8,12 @@
 #                     hostname the browser URL uses; port-less matches any port).
 #   DSH_PORT         - host-side port for the web UI (default 3081).
 #   DEEPSEEK_API_KEY - optional; needed only for real model calls.
+#
+# Persistence is host-visible bind mounts, not a named volume:
+#   ./dsh-data  <- /data  (DSH_HOME: sessions, settings, workspace registry)
+#   ./root-home <- /root  (container home: the directory picker opens here, so
+#                          workspace directories created through it survive
+#                          container recreation as real host directories)
 
 services:
   dsh-web:
@@ -22,8 +28,6 @@ services:
     environment:
       - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
     volumes:
-      - dsh-data:/data
+      - ./dsh-data:/data
+      - ./root-home:/root
     restart: unless-stopped
-
-volumes:
-  dsh-data:
