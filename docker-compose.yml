@@ -1,0 +1,29 @@
+# dsh web GUI as one managed instance (docker compose).
+# Build:   docker compose build
+# Run:     docker compose up -d
+# Manage:  docker compose logs -f / restart / down
+#
+# Configure through the .env file next to this compose file:
+#   DSH_TRUSTED_HOST - authority the browser /api fence trusts (the IP or
+#                     hostname the browser URL uses; port-less matches any port).
+#   DSH_PORT         - host-side port for the web UI (default 3081).
+#   DEEPSEEK_API_KEY - optional; needed only for real model calls.
+
+services:
+  dsh-web:
+    build: .
+    image: dsh-web:latest
+    container_name: dsh-web
+    # The webserver row patch pins container port 3080; --trusted-host admits
+    # the browser-facing authority past the /api Host fence.
+    command: ["pnpm", "dsh", "web", "--patch", "/dsh-docker.yml", "--trusted-host", "${DSH_TRUSTED_HOST:?set DSH_TRUSTED_HOST in .env}"]
+    ports:
+      - "${DSH_PORT:-3081}:3080"
+    environment:
+      - DEEPSEEK_API_KEY=${DEEPSEEK_API_KEY:-}
+    volumes:
+      - dsh-data:/data
+    restart: unless-stopped
+
+volumes:
+  dsh-data:
