@@ -1,0 +1,16 @@
+# Keep the build context to sources; everything excluded is regenerated in-image.
+.git
+node_modules
+**/node_modules
+**/lib
+**/dist
+**/coverage
+website/.vitepress/cache
+website/.vitepress/dist
+
+# Never bake local secrets or session state into the image.
+.env
+.env.*
+data
+*.log
+.DS_Store
